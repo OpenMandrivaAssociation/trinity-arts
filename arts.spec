@@ -42,7 +42,7 @@
 Name:		trinity-%{tde_pkg}
 Epoch:		%{tde_epoch}
 Version:	1.5.10
-Release:	%{?tde_version}_%{?!preversion:1}%{?preversion:0_%{preversion}}%{?dist}
+Release:	%{?tde_version}_%{?!preversion:3}%{?preversion:0_%{preversion}}%{?dist}
 Summary:	ARTS (analog realtime synthesizer) - the TDE sound system
 Group:		System Environment/Daemons 
 URL:		http://www.trinitydesktop.org/
@@ -86,10 +86,10 @@ BuildRequires:  pkgconfig(alsa)
 
 
 # ESOUND support
-%define with_esound 0
-%if 0%{?with_esound}
-BuildRequires:  pkgconfig(esound)
-%endif
+#define with_esound 0
+# %if 0%{?with_esound}
+# BuildRequires:  pkgconfig(esound)
+# %endif
 
 # JACK support
 %define with_jack 1
@@ -165,7 +165,7 @@ Obsoletes:	arts-devel < %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:	pkgconfig(alsa)
 Requires:	pkgconfig(audiofile)
 Requires:  pkgconfig(vorbis)
-Requires:  pkgconfig(esound)
+#Requires:  pkgconfig(esound)
 Requires:  pkgconfig(mad)
 Requires:  pkgconfig(jack)
 
