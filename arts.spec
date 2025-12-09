@@ -1,6 +1,8 @@
-#
-# Please submit bugfixes or comments via http://www.trinitydesktop.org/
-#
+%bcond clang 1
+%bcond jack 1
+%bcond mad 1
+%bcond esound 0
+%bcond pulseaudio 1
 
 # BUILD WARNING:
 #  Remove qt-devel and qt3-devel and any kde*-devel on your system !
@@ -11,6 +13,8 @@
 %if "%{?tde_version}" == ""
 %define tde_version 14.1.5
 %endif
+%define pkg_rel 4
+
 %define tde_pkg arts
 %define tde_prefix /opt/trinity
 %define tde_bindir %{tde_prefix}/bin
@@ -26,32 +30,25 @@
 %define tde_tdeincludedir %{tde_includedir}/tde
 %define tde_tdelibdir %{tde_libdir}/trinity
 
-%if 0%{?mdkversion}
 %undefine __brp_remove_la_files
 %define dont_remove_libtool_files 1
 %define _disable_rebuild_configure 1
-%endif
 
 # fixes error: Empty %files file …/debugsourcefiles.list
 %define _debugsource_template %{nil}
 
 %define tarball_name %{tde_pkg}-trinity
-%global toolchain %(readlink /usr/bin/cc)
 
 
 Name:		trinity-%{tde_pkg}
 Epoch:		%{tde_epoch}
 Version:	1.5.10
-Release:	%{?tde_version}_%{?!preversion:3}%{?preversion:0_%{preversion}}%{?dist}
+Release:	%{?tde_version}_%{?!preversion:%{pkg_rel}}%{?preversion:0_%{preversion}}%{?dist}
 Summary:	ARTS (analog realtime synthesizer) - the TDE sound system
 Group:		System Environment/Daemons 
 URL:		http://www.trinitydesktop.org/
 
-%if 0%{?suse_version}
-License:	GPL-2.0+
-%else
 License:	GPLv2+
-%endif
 
 #Vendor:		Trinity Project
 #Packager:	Francois Andriot <francois.andriot@free.fr>
@@ -61,16 +58,37 @@ Prefix:		%{tde_prefix}
 Source0:	https://mirror.ppa.trinitydesktop.org/trinity/releases/R%{tde_version}/main/dependencies/%{tarball_name}-%{tde_version}%{?preversion:~%{preversion}}.tar.xz
 Source1:	%{name}-rpmlintrc
 
-BuildRequires:    cmake make
+BuildSystem:    cmake
+BuildOption:    -DCMAKE_BUILD_TYPE="RelWithDebInfo"
+BuildOption:    -DCMAKE_SKIP_RPATH=OFF
+BuildOption:    -DCMAKE_SKIP_INSTALL_RPATH=OFF
+BuildOption:    -DCMAKE_INSTALL_RPATH="%{tde_libdir}"
+BuildOption:    -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
+BuildOption:    -DCMAKE_NO_BUILTIN_CHRPATH=ON
+BuildOption:    -DWITH_GCC_VISIBILITY=ON
+BuildOption:    -DCMAKE_INSTALL_PREFIX="%{tde_prefix}"
+BuildOption:    -DBIN_INSTALL_DIR="%{tde_bindir}"
+BuildOption:    -DINCLUDE_INSTALL_DIR="%{tde_tdeincludedir}"
+BuildOption:    -DLIB_INSTALL_DIR="%{tde_libdir}"
+BuildOption:    -DMAN_INSTALL_DIR="%{tde_mandir}"
+BuildOption:    -DPKGCONFIG_INSTALL_DIR="%{tde_libdir}/pkgconfig"
+BuildOption:    -DWITH_ALSA=ON
+BuildOption:    -DWITH_AUDIOFILE=ON
+BuildOption:    -DWITH_VORBIS=ON
+%{?with_mad:BuildOption:    -DWITH_MAD=ON} 
+%{!?with_mad:BuildOption:     -DWITH_MAD=OFF}
+%{?with_esound:BuildOption:     -DWITH_ESOUND=OFF}
+%{!?with_esound:BuildOption:     -DWITH_ESOUND=OFF}
+%{?with_jack:BuildOption:     -DWITH_JACK=ON} 
+%{!?with_jack:BuildOption:     -DWITH_JACK=OFF}
 
 BuildRequires:	libtqt4-devel >= %{tde_epoch}:4.2.0
 BuildRequires:	trinity-filesystem >= %{tde_version}
 Requires:		trinity-filesystem >= %{tde_version}
 
 BuildRequires:	trinity-tde-cmake >= %{tde_version}
-%if "%{?toolchain}" != "clang"
-BuildRequires:	gcc-c++
-%endif
+%{!?with_clang:BuildRequires:	gcc-c++}
+
 BuildRequires:	pkgconfig
 
 BuildRequires:	pkgconfig(audiofile)
@@ -86,30 +104,16 @@ BuildRequires:  pkgconfig(alsa)
 
 
 # ESOUND support
-#define with_esound 0
-# %if 0%{?with_esound}
-# BuildRequires:  pkgconfig(esound)
-# %endif
+%{?with_esound:BuildRequires:  pkgconfig(esound)}
 
 # JACK support
-%define with_jack 1
-%if 0%{?with_jack}
-BuildRequires:  pkgconfig(jack)
-%endif
+%{?with_jack:BuildRequires:  pkgconfig(jack)}
 
 # LIBTOOL
 BuildRequires:  libtool-devel
 
 # MAD support
-%define with_mad 1
-%if 0%{?with_mad}
-BuildRequires:  pkgconfig(mad)
-%endif
-
-# Pulseaudio config file
-%if 0%{?mgaversion} || 0%{?mdkversion} || 0%{?rhel} >= 6 || 0%{?fedora} || 0%{?suse_version}
-%define with_pulseaudio 1
-%endif
+%{?with_mad:BuildRequires:  pkgconfig(mad)}
 
 Requires:		libtqt4 >= %{tde_epoch}:4.2.0
 #Requires:		audiofile
@@ -165,7 +169,7 @@ Obsoletes:	arts-devel < %{?epoch:%{epoch}:}%{version}-%{release}
 Requires:	pkgconfig(alsa)
 Requires:	pkgconfig(audiofile)
 Requires:  pkgconfig(vorbis)
-#Requires:  pkgconfig(esound)
+%{?with_esound:Requires:  pkgconfig(esound)}
 Requires:  pkgconfig(mad)
 Requires:  pkgconfig(jack)
 
@@ -193,7 +197,7 @@ playing a wave file with some effects.
 %{tde_libdir}/pkgconfig/*.pc
 %{tde_libdir}/*.a
 
-%if 0%{?with_pulseaudio}
+%if %{with pulseaudio}
 %package config-pulseaudio
 Group:		System Environment/Daemons
 Summary:	ARTS - Default configuration file for Pulseaudio
@@ -208,59 +212,17 @@ intended for systems running the Pulseaudio server.
 %config %{tde_confdir}/kcmartsrc
 %endif
 
-##########
-
-%prep
-%autosetup -n %{tarball_name}-%{tde_version}%{?preversion:~%{preversion}}
-
-
-%build
+%conf -p
 unset QTDIR QTINC QTLIB
 export PATH="%{tde_bindir}:${PATH}"
 export PKG_CONFIG_PATH="%{tde_libdir}/pkgconfig"
 
-if ! rpm -E %%cmake|grep -e 'cd build\|cd ${CMAKE_BUILD_DIR:-build}'; then
-  %__mkdir_p build
-  cd build
-fi
-
-%cmake \
-  -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
-  -DCMAKE_C_FLAGS="${RPM_OPT_FLAGS}" \
-  -DCMAKE_CXX_FLAGS="${RPM_OPT_FLAGS}" \
-  -DCMAKE_SKIP_RPATH=OFF \
-  -DCMAKE_SKIP_INSTALL_RPATH=OFF \
-  -DCMAKE_INSTALL_RPATH="%{tde_libdir}" \
-  -DCMAKE_NO_BUILTIN_CHRPATH=ON \
-  -DCMAKE_VERBOSE_MAKEFILE=ON \
-  -DWITH_GCC_VISIBILITY=ON \
-  \
-  -DCMAKE_INSTALL_PREFIX="%{tde_prefix}" \
-  -DBIN_INSTALL_DIR="%{tde_bindir}" \
-  -DINCLUDE_INSTALL_DIR="%{tde_tdeincludedir}" \
-  -DLIB_INSTALL_DIR="%{tde_libdir}" \
-  -DMAN_INSTALL_DIR="%{tde_mandir}" \
-  -DPKGCONFIG_INSTALL_DIR="%{tde_libdir}/pkgconfig" \
-  \
-  -DWITH_ALSA=ON \
-  -DWITH_AUDIOFILE=ON \
-  -DWITH_VORBIS=ON \
-  %{?with_libmad:-DWITH_MAD=ON} %{!?with_libmad:-DWITH_MAD=OFF} \
-  -DWITH_ESOUND=OFF \
-  %{?with_jack:-DWITH_JACK=ON} %{!?with_jack:-DWITH_JACK=OFF} \
-  ..
-
-%__make %{?_smp_mflags} || %__make
-
-
-%install
-%__make install -C build DESTDIR=%{?buildroot}
-
+%install -a
 %__install -d -m 755 %{?buildroot}%{tde_datadir}/config
 %__install -d -m 755 %{?buildroot}%{tde_datadir}/doc
 
 # Installs the Pulseaudio configuration file
-%if 0%{?with_pulseaudio}
+%if %{with pulseaudio}
 %__mkdir_p "%{?buildroot}%{tde_confdir}"
 cat <<EOF >"%{?buildroot}%{tde_confdir}/kcmartsrc"
 [Arts]
