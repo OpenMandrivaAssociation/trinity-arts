@@ -82,7 +82,7 @@ BuildOption:    -DWITH_VORBIS=ON
 %{?with_jack:BuildOption:     -DWITH_JACK=ON} 
 %{!?with_jack:BuildOption:     -DWITH_JACK=OFF}
 
-BuildRequires:	pkgconfig(tqt) >= %{tde_epoch}:4.2.0
+BuildRequires:	libtqt4-devel >= %{tde_epoch}:4.2.0
 BuildRequires:	trinity-filesystem >= %{tde_version}
 Requires:		trinity-filesystem >= %{tde_version}
 
