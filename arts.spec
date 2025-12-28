@@ -16,19 +16,6 @@
 %define pkg_rel 4
 
 %define tde_pkg arts
-%define tde_prefix /opt/trinity
-%define tde_bindir %{tde_prefix}/bin
-%define tde_confdir %{_sysconfdir}/trinity
-%define tde_datadir %{tde_prefix}/share
-%define tde_docdir %{tde_datadir}/doc
-%define tde_includedir %{tde_prefix}/include
-%define tde_libdir %{tde_prefix}/%{_lib}
-%define tde_mandir %{tde_datadir}/man
-%define tde_sbindir %{tde_prefix}/sbin
-%define tde_tdeappdir %{tde_datadir}/applications/tde
-%define tde_tdedocdir %{tde_docdir}/tde
-%define tde_tdeincludedir %{tde_includedir}/tde
-%define tde_tdelibdir %{tde_libdir}/trinity
 
 %undefine __brp_remove_la_files
 %define dont_remove_libtool_files 1
@@ -50,43 +37,37 @@ URL:		http://www.trinitydesktop.org/
 
 License:	GPLv2+
 
-#Vendor:		Trinity Project
-#Packager:	Francois Andriot <francois.andriot@free.fr>
-
-Prefix:		%{tde_prefix}
+Prefix:		/opt/trinity
 
 Source0:	https://mirror.ppa.trinitydesktop.org/trinity/releases/R%{tde_version}/main/dependencies/%{tarball_name}-%{tde_version}%{?preversion:~%{preversion}}.tar.xz
 Source1:	%{name}-rpmlintrc
 
+Patch0:   trinity-arts-fix-rpath.patch
+
 BuildSystem:    cmake
+
+BuildOption:    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 BuildOption:    -DCMAKE_BUILD_TYPE="RelWithDebInfo"
 BuildOption:    -DCMAKE_SKIP_RPATH=OFF
 BuildOption:    -DCMAKE_SKIP_INSTALL_RPATH=OFF
-BuildOption:    -DCMAKE_INSTALL_RPATH="%{tde_libdir}"
 BuildOption:    -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
+BuildOption:    -DCMAKE_INSTALL_RPATH=%{prefix}/%{_lib}
 BuildOption:    -DCMAKE_NO_BUILTIN_CHRPATH=ON
-BuildOption:    -DWITH_GCC_VISIBILITY=ON
-BuildOption:    -DCMAKE_INSTALL_PREFIX="%{tde_prefix}"
-BuildOption:    -DBIN_INSTALL_DIR="%{tde_bindir}"
-BuildOption:    -DINCLUDE_INSTALL_DIR="%{tde_tdeincludedir}"
-BuildOption:    -DLIB_INSTALL_DIR="%{tde_libdir}"
-BuildOption:    -DMAN_INSTALL_DIR="%{tde_mandir}"
-BuildOption:    -DPKGCONFIG_INSTALL_DIR="%{tde_libdir}/pkgconfig"
-BuildOption:    -DWITH_ALSA=ON
-BuildOption:    -DWITH_AUDIOFILE=ON
-BuildOption:    -DWITH_VORBIS=ON
-%{?with_mad:BuildOption:    -DWITH_MAD=ON} 
-%{!?with_mad:BuildOption:     -DWITH_MAD=OFF}
-%{?with_esound:BuildOption:     -DWITH_ESOUND=OFF}
-%{!?with_esound:BuildOption:     -DWITH_ESOUND=OFF}
-%{?with_jack:BuildOption:     -DWITH_JACK=ON} 
-%{!?with_jack:BuildOption:     -DWITH_JACK=OFF}
+BuildOption:    -DWITH_GCC_VISIBILITY=%{!?with_clang:ON}%{?with_clang:OFF}
+BuildOption:    -DCMAKE_INSTALL_PREFIX=%{prefix}
+BuildOption:    -DINCLUDE_INSTALL_DIR=%{prefix}/include/tde
+BuildOption:    -DPKGCONFIG_INSTALL_DIR=%{prefix}/%{_lib}/pkgconfig
+BuildOption:    -DWITH_MAD=%{!?with_mad:OFF}%{?with_mad:ON}
+BuildOption:    -DWITH_ESOUND=%{!?with_esound:OFF}%{?with_esound:ON}
+BuildOption:    -DWITH_JACK=%{!?with_jack:OFF}%{?with_jack:ON} 
+
 
 BuildRequires:	libtqt4-devel >= %{tde_epoch}:4.2.0
 BuildRequires:	trinity-filesystem >= %{tde_version}
 Requires:		trinity-filesystem >= %{tde_version}
 
 BuildRequires:	trinity-tde-cmake >= %{tde_version}
+
 %{!?with_clang:BuildRequires:	gcc-c++}
 
 BuildRequires:	pkgconfig
@@ -118,7 +99,7 @@ BuildRequires:  libtool-devel
 Requires:		libtqt4 >= %{tde_epoch}:4.2.0
 #Requires:		audiofile
 
-%if "%{?tde_prefix}" == "/usr"
+%if "%{?prefix}" == "/usr"
 Obsoletes:	arts < %{?epoch:%{epoch}:}%{version}-%{release}
 %endif
 
@@ -137,24 +118,24 @@ playing a wave file with some effects.
 %files
 %defattr(-,root,root,-)
 %doc COPYING.LIB
-%dir %{tde_libdir}/mcop
-%dir %{tde_libdir}/mcop/Arts
-%{tde_libdir}/mcop/Arts/*
-%{tde_libdir}/mcop/*.mcopclass
-%{tde_libdir}/mcop/*.mcoptype
-%{tde_libdir}/lib*.so.*
-%{tde_bindir}/artscat
-%{tde_bindir}/artsd
-%{tde_bindir}/artsdsp
-%{tde_bindir}/artsplay
-%{tde_bindir}/artsrec
-%{tde_bindir}/artsshell
-%{tde_bindir}/artswrapper
+%dir %{prefix}/%{_lib}/mcop
+%dir %{prefix}/%{_lib}/mcop/Arts
+%{prefix}/%{_lib}/mcop/Arts/*
+%{prefix}/%{_lib}/mcop/*.mcopclass
+%{prefix}/%{_lib}/mcop/*.mcoptype
+%{prefix}/%{_lib}/lib*.so.*
+%{prefix}/bin/artscat
+%{prefix}/bin/artsd
+%{prefix}/bin/artsdsp
+%{prefix}/bin/artsplay
+%{prefix}/bin/artsrec
+%{prefix}/bin/artsshell
+%{prefix}/bin/artswrapper
 # The '.la' files are needed for runtime, not devel !
-%{tde_libdir}/lib*.la
-%{tde_mandir}/man1/artsc-config-trinity.1*
-%{tde_mandir}/man1/artscat-trinity.1*
-%{tde_mandir}/man1/artsdsp-trinity.1*
+%{prefix}/%{_lib}/lib*.la
+%{prefix}/share/man/man1/artsc-config-trinity.1*
+%{prefix}/share/man/man1/artscat-trinity.1*
+%{prefix}/share/man/man1/artsdsp-trinity.1*
 
 ##########
 
@@ -162,7 +143,7 @@ playing a wave file with some effects.
 Group:		Development/Libraries
 Summary:	ARTS (analog realtime synthesizer) - the TDE sound system (Development files)
 Requires:	%{name} = %{?epoch:%{epoch}:}%{version}-%{release}
-%if "%{?tde_prefix}" == "/usr"
+%if "%{?prefix}" == "/usr"
 Obsoletes:	arts-devel < %{?epoch:%{epoch}:}%{version}-%{release}
 %endif
 
@@ -187,15 +168,15 @@ playing a wave file with some effects.
 
 %files devel
 %defattr(-,root,root,-)
-%{tde_bindir}/mcopidl
+%{prefix}/bin/mcopidl
 # Arts includes are under 'tde' - this is on purpose !
-%{tde_tdeincludedir}/arts/
+%{prefix}/include/tde/arts/
 # Artsc includes are not under 'tde'.
-%{tde_includedir}/artsc/
-%{tde_bindir}/artsc-config
-%{tde_libdir}/lib*.so
-%{tde_libdir}/pkgconfig/*.pc
-%{tde_libdir}/*.a
+%{prefix}/include/artsc/
+%{prefix}/bin/artsc-config
+%{prefix}/%{_lib}/pkgconfig/*.pc
+%{prefix}/%{_lib}/lib*.so
+%{prefix}/%{_lib}/*.a
 
 %if %{with pulseaudio}
 %package config-pulseaudio
@@ -209,29 +190,30 @@ intended for systems running the Pulseaudio server.
 
 %files config-pulseaudio
 %defattr(-,root,root,-)
-%config %{tde_confdir}/kcmartsrc
+%config %{_sysconfdir}/trinity/kcmartsrc
 %endif
 
 %conf -p
 unset QTDIR QTINC QTLIB
-export PATH="%{tde_bindir}:${PATH}"
-export PKG_CONFIG_PATH="%{tde_libdir}/pkgconfig"
+export PATH="%{prefix}/bin:${PATH}"
+export PKG_CONFIG_PATH="%{prefix}/%{_lib}/pkgconfig"
+
 
 %install -a
-%__install -d -m 755 %{?buildroot}%{tde_datadir}/config
-%__install -d -m 755 %{?buildroot}%{tde_datadir}/doc
+%__install -d -m 755 %{?buildroot}%{prefix}/share/config
+%__install -d -m 755 %{?buildroot}%{prefix}/share/doc
 
 # Installs the Pulseaudio configuration file
 %if %{with pulseaudio}
-%__mkdir_p "%{?buildroot}%{tde_confdir}"
-cat <<EOF >"%{?buildroot}%{tde_confdir}/kcmartsrc"
+%__mkdir_p "%{?buildroot}%{_sysconfdir}/trinity"
+cat <<EOF >"%{?buildroot}%{_sysconfdir}/trinity/kcmartsrc"
 [Arts]
 Arguments=\s-F 10 -S 4096 -a esd -n -s 1 -m artsmessage -c drkonqi -l 3 -f
 NetworkTransparent=true
 SuspendTime=1
 EOF
-chmod 644 "%{?buildroot}%{tde_confdir}/kcmartsrc"
+chmod 644 "%{?buildroot}%{_sysconfdir}/trinity/kcmartsrc"
 %endif
 
 # Add supplementary folders
-%__install -d -m 755 "%{?buildroot}%{tde_libdir}/mcop/Arts/Environment"
+%__install -d -m 755 "%{?buildroot}%{prefix}/%{_lib}/mcop/Arts/Environment"
