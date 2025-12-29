@@ -13,7 +13,7 @@
 %if "%{?tde_version}" == ""
 %define tde_version 14.1.5
 %endif
-%define pkg_rel 4
+%define pkg_rel 5
 
 %define tde_pkg arts
 
@@ -42,17 +42,22 @@ Prefix:		/opt/trinity
 Source0:	https://mirror.ppa.trinitydesktop.org/trinity/releases/R%{tde_version}/main/dependencies/%{tarball_name}-%{tde_version}%{?preversion:~%{preversion}}.tar.xz
 Source1:	%{name}-rpmlintrc
 
-Patch0:   trinity-arts-fix-rpath.patch
+#Patch0:   trinity-arts-fix-rpath.patch
+
+# ninja is broken, due to import/export of in project libs
+BuildRequires:  make
 
 BuildSystem:    cmake
 
+BuildOption:    -G "Unix Makefiles"
 BuildOption:    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 BuildOption:    -DCMAKE_BUILD_TYPE="RelWithDebInfo"
 BuildOption:    -DCMAKE_SKIP_RPATH=OFF
 BuildOption:    -DCMAKE_SKIP_INSTALL_RPATH=OFF
-BuildOption:    -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
+# required for ninja
+#BuildOption:    -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
 BuildOption:    -DCMAKE_INSTALL_RPATH=%{prefix}/%{_lib}
-BuildOption:    -DCMAKE_NO_BUILTIN_CHRPATH=ON
+
 BuildOption:    -DWITH_GCC_VISIBILITY=%{!?with_clang:ON}%{?with_clang:OFF}
 BuildOption:    -DCMAKE_INSTALL_PREFIX=%{prefix}
 BuildOption:    -DINCLUDE_INSTALL_DIR=%{prefix}/include/tde
