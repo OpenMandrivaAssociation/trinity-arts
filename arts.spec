@@ -13,9 +13,11 @@
 %if "%{?tde_version}" == ""
 %define tde_version 14.1.5
 %endif
-%define pkg_rel 5
+%define pkg_rel 6
 
 %define tde_pkg arts
+
+%define tde_prefix /opt/trinity
 
 %undefine __brp_remove_la_files
 %define dont_remove_libtool_files 1
@@ -37,12 +39,8 @@ URL:		http://www.trinitydesktop.org/
 
 License:	GPLv2+
 
-Prefix:		/opt/trinity
-
 Source0:	https://mirror.ppa.trinitydesktop.org/trinity/releases/R%{tde_version}/main/dependencies/%{tarball_name}-%{tde_version}%{?preversion:~%{preversion}}.tar.xz
 Source1:	%{name}-rpmlintrc
-
-#Patch0:   trinity-arts-fix-rpath.patch
 
 # ninja is broken, due to import/export of in project libs
 BuildRequires:  make
@@ -56,12 +54,12 @@ BuildOption:    -DCMAKE_SKIP_RPATH=OFF
 BuildOption:    -DCMAKE_SKIP_INSTALL_RPATH=OFF
 # required for ninja
 #BuildOption:    -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
-BuildOption:    -DCMAKE_INSTALL_RPATH=%{prefix}/%{_lib}
+BuildOption:    -DCMAKE_INSTALL_RPATH=%{tde_prefix}/%{_lib}
 
 BuildOption:    -DWITH_GCC_VISIBILITY=%{!?with_clang:ON}%{?with_clang:OFF}
-BuildOption:    -DCMAKE_INSTALL_PREFIX=%{prefix}
-BuildOption:    -DINCLUDE_INSTALL_DIR=%{prefix}/include/tde
-BuildOption:    -DPKGCONFIG_INSTALL_DIR=%{prefix}/%{_lib}/pkgconfig
+BuildOption:    -DCMAKE_INSTALL_PREFIX=%{tde_prefix}
+BuildOption:    -DINCLUDE_INSTALL_DIR=%{tde_prefix}/include/tde
+BuildOption:    -DPKGCONFIG_INSTALL_DIR=%{tde_prefix}/%{_lib}/pkgconfig
 BuildOption:    -DWITH_MAD=%{!?with_mad:OFF}%{?with_mad:ON}
 BuildOption:    -DWITH_ESOUND=%{!?with_esound:OFF}%{?with_esound:ON}
 BuildOption:    -DWITH_JACK=%{!?with_jack:OFF}%{?with_jack:ON} 
@@ -123,24 +121,24 @@ playing a wave file with some effects.
 %files
 %defattr(-,root,root,-)
 %doc COPYING.LIB
-%dir %{prefix}/%{_lib}/mcop
-%dir %{prefix}/%{_lib}/mcop/Arts
-%{prefix}/%{_lib}/mcop/Arts/*
-%{prefix}/%{_lib}/mcop/*.mcopclass
-%{prefix}/%{_lib}/mcop/*.mcoptype
-%{prefix}/%{_lib}/lib*.so.*
-%{prefix}/bin/artscat
-%{prefix}/bin/artsd
-%{prefix}/bin/artsdsp
-%{prefix}/bin/artsplay
-%{prefix}/bin/artsrec
-%{prefix}/bin/artsshell
-%{prefix}/bin/artswrapper
+%dir %{tde_prefix}/%{_lib}/mcop
+%dir %{tde_prefix}/%{_lib}/mcop/Arts
+%{tde_prefix}/%{_lib}/mcop/Arts/*
+%{tde_prefix}/%{_lib}/mcop/*.mcopclass
+%{tde_prefix}/%{_lib}/mcop/*.mcoptype
+%{tde_prefix}/%{_lib}/lib*.so.*
+%{tde_prefix}/bin/artscat
+%{tde_prefix}/bin/artsd
+%{tde_prefix}/bin/artsdsp
+%{tde_prefix}/bin/artsplay
+%{tde_prefix}/bin/artsrec
+%{tde_prefix}/bin/artsshell
+%{tde_prefix}/bin/artswrapper
 # The '.la' files are needed for runtime, not devel !
-%{prefix}/%{_lib}/lib*.la
-%{prefix}/share/man/man1/artsc-config-trinity.1*
-%{prefix}/share/man/man1/artscat-trinity.1*
-%{prefix}/share/man/man1/artsdsp-trinity.1*
+%{tde_prefix}/%{_lib}/lib*.la
+%{tde_prefix}/share/man/man1/artsc-config-trinity.1*
+%{tde_prefix}/share/man/man1/artscat-trinity.1*
+%{tde_prefix}/share/man/man1/artsdsp-trinity.1*
 
 ##########
 
@@ -173,15 +171,15 @@ playing a wave file with some effects.
 
 %files devel
 %defattr(-,root,root,-)
-%{prefix}/bin/mcopidl
+%{tde_prefix}/bin/mcopidl
 # Arts includes are under 'tde' - this is on purpose !
-%{prefix}/include/tde/arts/
+%{tde_prefix}/include/tde/arts/
 # Artsc includes are not under 'tde'.
-%{prefix}/include/artsc/
-%{prefix}/bin/artsc-config
-%{prefix}/%{_lib}/pkgconfig/*.pc
-%{prefix}/%{_lib}/lib*.so
-%{prefix}/%{_lib}/*.a
+%{tde_prefix}/include/artsc/
+%{tde_prefix}/bin/artsc-config
+%{tde_prefix}/%{_lib}/pkgconfig/*.pc
+%{tde_prefix}/%{_lib}/lib*.so
+%{tde_prefix}/%{_lib}/*.a
 
 %if %{with pulseaudio}
 %package config-pulseaudio
@@ -200,13 +198,13 @@ intended for systems running the Pulseaudio server.
 
 %conf -p
 unset QTDIR QTINC QTLIB
-export PATH="%{prefix}/bin:${PATH}"
-export PKG_CONFIG_PATH="%{prefix}/%{_lib}/pkgconfig"
+export PATH="%{tde_prefix}/bin:${PATH}"
+export PKG_CONFIG_PATH="%{tde_prefix}/%{_lib}/pkgconfig"
 
 
 %install -a
-%__install -d -m 755 %{?buildroot}%{prefix}/share/config
-%__install -d -m 755 %{?buildroot}%{prefix}/share/doc
+%__install -d -m 755 %{?buildroot}%{tde_prefix}/share/config
+%__install -d -m 755 %{?buildroot}%{tde_prefix}/share/doc
 
 # Installs the Pulseaudio configuration file
 %if %{with pulseaudio}
@@ -221,4 +219,4 @@ chmod 644 "%{?buildroot}%{_sysconfdir}/trinity/kcmartsrc"
 %endif
 
 # Add supplementary folders
-%__install -d -m 755 "%{?buildroot}%{prefix}/%{_lib}/mcop/Arts/Environment"
+%__install -d -m 755 "%{?buildroot}%{tde_prefix}/%{_lib}/mcop/Arts/Environment"
