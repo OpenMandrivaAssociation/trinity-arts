@@ -13,7 +13,7 @@
 %if "%{?tde_version}" == ""
 %define tde_version 14.1.5
 %endif
-%define pkg_rel 6
+%define pkg_rel 7
 
 %define tde_pkg arts
 
@@ -42,20 +42,11 @@ License:	GPLv2+
 Source0:	https://mirror.ppa.trinitydesktop.org/trinity/releases/R%{tde_version}/main/dependencies/%{tarball_name}-%{tde_version}%{?preversion:~%{preversion}}.tar.xz
 Source1:	%{name}-rpmlintrc
 
-# ninja is broken, due to import/export of in project libs
-BuildRequires:  make
-
 BuildSystem:    cmake
 
-BuildOption:    -G "Unix Makefiles"
 BuildOption:    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 BuildOption:    -DCMAKE_BUILD_TYPE="RelWithDebInfo"
 BuildOption:    -DCMAKE_SKIP_RPATH=OFF
-BuildOption:    -DCMAKE_SKIP_INSTALL_RPATH=OFF
-# required for ninja
-#BuildOption:    -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
-BuildOption:    -DCMAKE_INSTALL_RPATH=%{tde_prefix}/%{_lib}
-
 BuildOption:    -DWITH_GCC_VISIBILITY=%{!?with_clang:ON}%{?with_clang:OFF}
 BuildOption:    -DCMAKE_INSTALL_PREFIX=%{tde_prefix}
 BuildOption:    -DINCLUDE_INSTALL_DIR=%{tde_prefix}/include/tde
@@ -220,3 +211,4 @@ chmod 644 "%{?buildroot}%{_sysconfdir}/trinity/kcmartsrc"
 
 # Add supplementary folders
 %__install -d -m 755 "%{?buildroot}%{tde_prefix}/%{_lib}/mcop/Arts/Environment"
+
