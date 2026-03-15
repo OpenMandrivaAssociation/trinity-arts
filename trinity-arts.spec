@@ -88,7 +88,7 @@ BuildRequires:  libtool-devel
 #Requires:		audiofile
 
 %if "%{?prefix}" == "/usr"
-Obsoletes:	arts < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:	arts < %{EVRD}
 %endif
 
 %description
@@ -130,9 +130,9 @@ playing a wave file with some effects.
 %package -n %{devname}
 Group:		Development/Libraries
 Summary:	ARTS (analog realtime synthesizer) - the TDE sound system (Development files)
-Requires:	%{name} = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:	%{name} = %{EVRD}
 %if "%{?prefix}" == "/usr"
-Obsoletes:	arts-devel < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:	arts-devel < %{EVRD}
 %endif
 
 Requires:	pkgconfig(alsa)
@@ -170,7 +170,7 @@ playing a wave file with some effects.
 %package config-pulseaudio
 Group:		System Environment/Daemons
 Summary:	ARTS - Default configuration file for Pulseaudio
-Requires:	%{name} = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:	%{name} = %{EVRD}
 
 %description config-pulseaudio
 This package contains a default ARTS configuration file, that is 
@@ -184,7 +184,6 @@ intended for systems running the Pulseaudio server.
 %conf -p
 unset QTDIR QTINC QTLIB
 export PATH="%{tde_prefix}/bin:${PATH}"
-export PKG_CONFIG_PATH="%{tde_prefix}/%{_lib}/pkgconfig"
 
 
 %install -a
