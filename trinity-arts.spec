@@ -25,7 +25,7 @@
 
 Name:		trinity-%{tde_pkg}
 Version:	1.5.10
-Release:	%{?tde_version:%{tde_version}_}8
+Release:	%{?tde_version:%{tde_version}_}9
 Summary:	ARTS (analog realtime synthesizer) - the TDE sound system
 Group:		System Environment/Daemons 
 URL:		http://www.trinitydesktop.org/
@@ -82,6 +82,7 @@ BuildRequires:  libtool-devel
 %{?with_mad:BuildRequires:  pkgconfig(mad)}
 
 #Requires:		audiofile
+Requires:     trinity-filesystem >= %{tde_version}
 
 %if "%{?prefix}" == "/usr"
 Obsoletes:	arts < %{EVRD}
@@ -137,6 +138,7 @@ Requires:  pkgconfig(vorbis)
 %{?with_esound:Requires:  pkgconfig(esound)}
 Requires:  pkgconfig(mad)
 Requires:  pkgconfig(jack)
+Requires:  trinity-filesystem >= %{tde_version}
 
 %description devel
 arts (analog real-time synthesizer) is the sound system of TDE.
