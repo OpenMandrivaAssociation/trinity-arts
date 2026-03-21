@@ -5,7 +5,6 @@
 %bcond pulseaudio 1
 
 # TDE variables
-%define tde_epoch 2
 %if "%{?tde_version}" == ""
 %define tde_version 14.1.5
 %endif
@@ -13,8 +12,6 @@
 %define tde_pkg arts
 
 %define tde_prefix /opt/trinity
-
-%define devname %mklibname %{tde_pkg} -d
 
 %undefine __brp_remove_la_files
 %define dont_remove_libtool_files 1
@@ -27,7 +24,6 @@
 
 
 Name:		trinity-%{tde_pkg}
-Epoch:		%{tde_epoch}
 Version:	1.5.10
 Release:	%{?tde_version:%{tde_version}_}8
 Summary:	ARTS (analog realtime synthesizer) - the TDE sound system
@@ -127,7 +123,7 @@ playing a wave file with some effects.
 
 ##########
 
-%package -n %{devname}
+%package devel
 Group:		Development/Libraries
 Summary:	ARTS (analog realtime synthesizer) - the TDE sound system (Development files)
 Requires:	%{name} = %{EVRD}
@@ -142,7 +138,7 @@ Requires:  pkgconfig(vorbis)
 Requires:  pkgconfig(mad)
 Requires:  pkgconfig(jack)
 
-%description -n %{devname}
+%description devel
 arts (analog real-time synthesizer) is the sound system of TDE.
 
 The principle of arts is to create/process sound using small modules which do
@@ -154,7 +150,7 @@ By connecting all those small modules together, you can perform complex
 tasks like simulating a mixer, generating an instrument or things like
 playing a wave file with some effects.
 
-%files -n %{devname}
+%files devel
 %defattr(-,root,root,-)
 %{tde_prefix}/bin/mcopidl
 # Arts includes are under 'tde' - this is on purpose !
