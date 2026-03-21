@@ -50,7 +50,7 @@ BuildOption:    -DWITH_JACK=%{!?with_jack:OFF}%{?with_jack:ON}
 
 BuildRequires:	pkgconfig(tqt)
 BuildRequires:	trinity-filesystem >= %{tde_version}
-
+BuildRequires:  tqt3-dev-tools
 BuildRequires:	trinity-tde-cmake >= %{tde_version}
 
 %{!?with_clang:BuildRequires:	gcc-c++}
