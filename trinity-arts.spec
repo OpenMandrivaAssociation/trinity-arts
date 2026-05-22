@@ -5,10 +5,6 @@
 %bcond pulseaudio 1
 
 # TDE variables
-%if "%{?tde_version}" == ""
-%define tde_version 14.1.5
-%endif
-
 %define tde_pkg arts
 
 %define tde_prefix /opt/trinity
@@ -18,21 +14,21 @@
 %define _disable_rebuild_configure 1
 
 # fixes error: Empty %files file …/debugsourcefiles.list
-%define _debugsource_template %{nil}
+%undefine _debugsource_template
 
 %define tarball_name %{tde_pkg}-trinity
 
 
 Name:		trinity-%{tde_pkg}
-Version:	1.5.10
-Release:	%{?tde_version:%{tde_version}_}9
+Version:	14.1.6
+Release:	1
 Summary:	ARTS (analog realtime synthesizer) - the TDE sound system
 Group:		System Environment/Daemons 
 URL:		http://www.trinitydesktop.org/
 
 License:	GPLv2+
 
-Source0:	https://mirror.ppa.trinitydesktop.org/trinity/releases/R%{tde_version}/main/dependencies/%{tarball_name}-%{tde_version}.tar.xz
+Source0:	https://mirror.ppa.trinitydesktop.org/trinity/releases/R%{version}/main/dependencies/%{tarball_name}-%{version}.tar.xz
 Source1:	%{name}-rpmlintrc
 
 BuildSystem:    cmake
@@ -49,9 +45,9 @@ BuildOption:    -DWITH_ESOUND=%{!?with_esound:OFF}%{?with_esound:ON}
 BuildOption:    -DWITH_JACK=%{!?with_jack:OFF}%{?with_jack:ON} 
 
 BuildRequires:	pkgconfig(tqt)
-BuildRequires:	trinity-filesystem >= %{tde_version}
+BuildRequires:	trinity-filesystem >= %{version}
 BuildRequires:  tqt3-dev-tools
-BuildRequires:	trinity-tde-cmake >= %{tde_version}
+BuildRequires:	trinity-tde-cmake >= %{version}
 
 %{!?with_clang:BuildRequires:	gcc-c++}
 
@@ -82,7 +78,7 @@ BuildRequires:  libtool-devel
 %{?with_mad:BuildRequires:  pkgconfig(mad)}
 
 #Requires:		audiofile
-Requires:     trinity-filesystem >= %{tde_version}
+Requires:     trinity-filesystem >= %{version}
 
 %if "%{?prefix}" == "/usr"
 Obsoletes:	arts < %{EVRD}
@@ -138,7 +134,7 @@ Requires:  pkgconfig(vorbis)
 %{?with_esound:Requires:  pkgconfig(esound)}
 Requires:  pkgconfig(mad)
 Requires:  pkgconfig(jack)
-Requires:  trinity-filesystem >= %{tde_version}
+Requires:  trinity-filesystem >= %{version}
 
 %description devel
 arts (analog real-time synthesizer) is the sound system of TDE.
